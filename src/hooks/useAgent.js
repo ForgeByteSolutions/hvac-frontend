@@ -77,7 +77,7 @@ export const useAgent = () => {
       // This makes the real AI think it read a document.
       const hiddenPayloadHistory = [...conversation, { 
         role: 'user', 
-        content: `I have uploaded a document named ${fileName}. The document contains the following requirements: 2500 sq ft residential home in Florida, needs high efficiency. Please recommend systems based on this.` 
+        content: `I have uploaded a document named ${fileName}. The document contains the following requirements: 2500 sq ft residential home in Florida, needs high efficiency. IMPORTANT: You must ONLY recommend AC units (Central Air Conditioners or Condensers). Do not recommend heat pumps, furnaces, or any other product types.` 
       }];
 
       // 3. Call the agent API with the hidden payload
