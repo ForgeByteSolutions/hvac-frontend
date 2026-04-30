@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { ArrowUp } from 'lucide-react';
+import { ArrowUp, Paperclip } from 'lucide-react';
 import MessageBubble, { TypingIndicator } from './MessageBubble';
 import { useAgent } from '../../hooks/useAgent';
 import { useChatContext } from '../../context/ChatContext';
@@ -7,8 +7,18 @@ import { useChatContext } from '../../context/ChatContext';
 export default function AgentChatUI() {
   const [input, setInput] = useState('');
   const { conversation, recommendations } = useChatContext();
-  const { sendMessage, isLoading } = useAgent();
+  const { sendMessage, simulateFileUpload, isLoading } = useAgent();
   const bottomRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      simulateFileUpload(file.name);
+      // Reset input so the same file can be selected again
+      e.target.value = null;
+    }
+  };
 
   // Auto-scroll to bottom when new messages appear
   useEffect(() => {
@@ -60,13 +70,29 @@ export default function AgentChatUI() {
         <div className="absolute bottom-6 left-0 right-0 px-4">
           <form 
             onSubmit={handleSubmit}
-            className="relative glass-dark p-2 pl-6 rounded-full flex items-center shadow-xl max-w-2xl mx-auto border border-black/5"
+            className="relative glass-dark p-2 pl-3 rounded-full flex items-center shadow-xl max-w-2xl mx-auto border border-black/5"
           >
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="p-2 mr-1 text-gray-400 hover:text-white transition-colors flex-shrink-0"
+              title="Upload Project Specs"
+              disabled={isLoading}
+            >
+              <Paperclip size={20} />
+            </button>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              style={{ display: 'none' }} 
+              onChange={handleFileChange} 
+              accept=".pdf,.doc,.docx,.txt"
+            />
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Tell me about your HVAC needs..."
+              placeholder="Tell me about your HVAC needs or upload specs..."
               className="flex-1 bg-transparent text-white border-none outline-none text-[15px] placeholder:text-gray-400 py-2.5"
               autoFocus
             />

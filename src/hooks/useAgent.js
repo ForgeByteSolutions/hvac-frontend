@@ -63,8 +63,60 @@ export const useAgent = () => {
     }
   };
 
+  const simulateFileUpload = async (fileName) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // 1. Show the uploaded file in the UI
+      const displayMessage = { role: 'user', content: `📄 Uploaded Document: ${fileName}` };
+      const updatedHistory = [...conversation, displayMessage];
+      setConversation(updatedHistory);
+
+      // 2. Secretly pass the "extracted" fake text to the AI by modifying the last message
+      // This makes the real AI think it read a document.
+      const hiddenPayloadHistory = [...conversation, { 
+        role: 'user', 
+        content: `I have uploaded a document named ${fileName}. The document contains the following requirements: 2500 sq ft residential home in Florida, needs high efficiency. Please recommend systems based on this.` 
+      }];
+
+      // 3. Call the agent API with the hidden payload
+      const response = await HvacAPI.recommend(hiddenPayloadHistory);
+
+      if (response.action === 'ask_question') {
+        const agentMessage = { role: 'assistant', content: response.message };
+        setConversation((prev) => [...prev, agentMessage]);
+      } else if (response.action === 'recommend') {
+        const agentMessage = { role: 'assistant', content: response.message };
+        setConversation((prev) => [...prev, agentMessage]);
+        
+        setParsedRequirements(response.parsed_requirements);
+        setRecommendations(response.recommendations);
+
+        try {
+          const explainRes = await HvacAPI.explainRecommendation({
+            conversation: hiddenPayloadHistory,
+            products: response.recommendations
+          });
+          if (explainRes.explanation) {
+             setConversation((prev) => [...prev, { role: 'assistant', content: explainRes.explanation }]);
+          }
+        } catch (explainErr) {
+          console.error("Failed to fetch explanation:", explainErr);
+        }
+      }
+    } catch (err) {
+      console.error("Agent error:", err);
+      setError(err.message || 'An error occurred processing the document.');
+      setConversation((prev) => prev.slice(0, -1));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     sendMessage,
+    simulateFileUpload,
     isLoading,
     error,
   };
