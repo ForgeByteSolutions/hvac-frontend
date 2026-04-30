@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShoppingBag, Sparkles, CheckCircle2, Box } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Sparkles, CheckCircle2, Box, HardHat } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import { HvacAPI } from '../services/api';
 import { useCart } from '../context/CartContext';
 import CompatibleSupplies from '../components/products/CompatibleSupplies';
+import { useContractorContext } from '../context/ContractorContext';
+import ContractorAdvisorPanel from '../components/contractor/ContractorAdvisorPanel';
 
 // Locally hosted .glb models in /public/models/
 const MODEL_MAP = {
@@ -34,6 +36,7 @@ export default function ProductDetail() {
   const { addToCart } = useCart();
   const [added, setAdded] = useState(false);
   const [modelError, setModelError] = useState(false);
+  const { openPanelWithProduct } = useContractorContext();
 
   useEffect(() => {
     let isMounted = true;
@@ -200,6 +203,59 @@ export default function ProductDetail() {
                 <><ShoppingBag size={20} /> Add to Cart</>
               )}
             </button>
+
+            {/* Contractor Advisor Trigger — B2B tool, separate from consumer AI */}
+            <button
+              id="contractor-advisor-btn"
+              onClick={() => openPanelWithProduct(product)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                marginTop: '12px',
+                width: '100%',
+                padding: '13px 20px',
+                borderRadius: '14px',
+                border: '1.5px solid rgba(15,23,42,0.15)',
+                background: 'linear-gradient(135deg, rgba(15,23,42,0.04), rgba(30,64,175,0.04))',
+                color: '#0f172a',
+                fontSize: '15px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                letterSpacing: '-0.01em',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(15,23,42,0.08), rgba(30,64,175,0.08))';
+                e.currentTarget.style.borderColor = 'rgba(30,64,175,0.3)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(15,23,42,0.04), rgba(30,64,175,0.04))';
+                e.currentTarget.style.borderColor = 'rgba(15,23,42,0.15)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <span style={{
+                width: 32, height: 32, borderRadius: '9px',
+                background: 'linear-gradient(135deg, #0f172a, #1e3a8a)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+              }}>
+                <HardHat size={15} color="#fff" />
+              </span>
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ fontSize: '14px', fontWeight: '800' }}>Contractor Advisor</div>
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '500', marginTop: 1 }}>
+                  AI-assisted job completion
+                </div>
+              </div>
+              <span style={{ marginLeft: 'auto', fontSize: '11px', fontWeight: '700', color: '#1e40af',
+                background: 'rgba(30,64,175,0.08)', padding: '3px 9px', borderRadius: '20px' }}>
+                B2B
+              </span>
+            </button>
+
+            <ContractorAdvisorPanel />
 
             {/* AI Explanation Inline */}
             <div className="mt-12 p-6 bg-apple-blue/5 rounded-3xl border border-apple-blue/10">

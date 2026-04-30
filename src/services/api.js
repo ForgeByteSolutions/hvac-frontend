@@ -53,5 +53,14 @@ export const HvacAPI = {
       cart_items: cartItems
     });
     return response.data;
+  },
+
+  // Contractor advisor — product-page-aware AI
+  contractorAdvise: async (productContext, conversation) => {
+    const response = await apiClient.post('/contractor/advise', {
+      product_context: productContext,
+      conversation,
+    });
+    return response.data;
   }
 };

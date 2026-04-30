@@ -6,7 +6,7 @@ import ProductGrid from '../products/ProductGrid';
 import ProductSpecsModal from '../products/ProductSpecsModal';
 
 export default function AgentWidget() {
-  const { recommendations, resetChat, isWidgetOpen: isOpen, setIsWidgetOpen: setIsOpen } = useChatContext();
+  const { recommendations, parsedRequirements, resetChat, isWidgetOpen: isOpen, setIsWidgetOpen: setIsOpen } = useChatContext();
   const [selectedProduct, setSelectedProduct] = useState(null);
   const widgetRef = useRef(null);
 
@@ -79,7 +79,14 @@ export default function AgentWidget() {
         {/* If recommendations exist, show them as a scrollable list inside the widget */}
         {recommendations && (
            <div className="h-2/5 shrink-0 border-t border-black/5 bg-white overflow-y-auto hide-scrollbar px-4 py-5 z-10 shadow-[0_-4px_24px_rgba(0,0,0,0.02)]">
-              <h4 className="text-[12px] font-bold text-apple-gray mb-3 uppercase tracking-widest text-center">Top Matches</h4>
+              <div className="flex justify-between items-center mb-3">
+                <h4 className="text-[12px] font-bold text-apple-gray uppercase tracking-widest">Top Matches</h4>
+                {parsedRequirements?.bulk_quantity && (
+                  <span className="bg-amber-100 text-amber-800 text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <Sparkles size={10} /> Bulk Order: {parsedRequirements.bulk_quantity} Units
+                  </span>
+                )}
+              </div>
               <div className="flex flex-col gap-3">
                 {recommendations.map((item, idx) => (
                   <div 
